@@ -21,3 +21,31 @@ model DataLog {
   message   String
   createdAt DateTime @default(now())
 }
+
+model GameslistGame {
+  id          Int     @id @default(autoincrement())
+  gid         String  @unique // Game ID
+  slug        String  @unique // Game slug
+  name        String?
+  providerId  Int     // Foreign key to GameslistProvider
+  provider    GameslistProvider @relation(fields: [providerId], references: [id])
+  isActive    Boolean  @default(true) // Corresponds to 'active' filter
+
+  // New fields for filtering from ListGameslist.php
+  gid_extra   String?
+  bonusbuy    Boolean? @default(false)
+  jackpot     Boolean? @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GameslistProvider {
+  id        Int      @id @default(autoincrement())
+  pid       String   @unique // Provider ID, if it's a string and unique like 'redtiger'
+  name      String   @unique
+  // Add other relevant provider fields here, e.g., description, website, etc.
+  games     GameslistGame[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

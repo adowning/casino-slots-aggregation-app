@@ -13,8 +13,41 @@ async function main() {
       { message: 'Log entry 5 - Initial seed' },
     ],
     skipDuplicates: true, // Optional: useful if you might re-run seeding
-  })
-  console.log(`Seeding finished.`)
+  });
+
+  // Add new seed data for providers and games
+  console.log(`Seeding providers...`);
+  const provider1 = await prisma.gameslistProvider.upsert({
+    where: { pid: 'providerone' },
+    update: {},
+    create: {
+      pid: 'providerone',
+      name: 'Provider One',
+    },
+  });
+
+  const provider2 = await prisma.gameslistProvider.upsert({
+    where: { pid: 'providertwo' },
+    update: {},
+    create: {
+      pid: 'providertwo',
+      name: 'Provider Two',
+    },
+  });
+  console.log(`Providers seeded.`);
+
+  console.log(`Seeding games...`);
+  await prisma.gameslistGame.createMany({
+    data: [
+      { gid: 'game001', slug: 'game-one-slug', name: 'Game One', providerId: provider1.id, isActive: true },
+      { gid: 'game002', slug: 'game-two-slug', name: 'Game Two', providerId: provider1.id, isActive: false },
+      { gid: 'game003', slug: 'game-three-slug', name: 'Game Three', providerId: provider2.id, isActive: true },
+    ],
+    skipDuplicates: true, // Good for re-runnable seeds for unique fields like gid/slug
+  });
+  console.log(`Games seeded.`);
+
+  console.log(`Seeding finished.`);
 }
 
 main()
