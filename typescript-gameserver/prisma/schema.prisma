@@ -49,3 +49,41 @@ model GameslistProvider {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model PragmaticPlayTransaction {
+  id              Int      @id @default(autoincrement())
+  bonusgame_token String?
+  player_id       String
+  command         String?
+  game_id         String
+
+  replayed        Boolean? @default(false)
+  active          Boolean? @default(true)
+  init_event      Json?
+  game_event      Json?
+
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@map("wainwright_bgaming_bonusgames")
+}
+
+model FreeSpins {
+  id              Int      @id @default(autoincrement())
+  player_id       String
+  game_id         String
+  operator_key    String
+
+  total_spins     Int?
+  remaining_spins Int?
+  bet_level       String?
+  currency        String?
+
+  active          Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Example of a composite unique key if a player can only have one active free spin offer per game and operator
+  // @@unique([player_id, game_id, operator_key, active], name: "active_freespin_offer")
+}

@@ -1,14 +1,16 @@
 import { Hono } from 'hono';
 import debugCallbackRoutes from './src/controllers/DebugCallbackController';
 import dataLoggerRoutes from './src/controllers/DataLoggerController';
-import gameslistRoutes from './src/controllers/GameslistController'; // Import new controller
+import gameslistRoutes from './src/controllers/GameslistController';
+import pragmaticPlayMainRoutes from './src/controllers/PragmaticPlay/PragmaticPlayMainController'; // Import new controller
 
 const honoApp = new Hono(); // Use honoApp consistently
 
 // Register the debug callback routes under a specific path, e.g., /api
 honoApp.route('/api/debug', debugCallbackRoutes);
 honoApp.route('/api/datalogger', dataLoggerRoutes);
-honoApp.route('/api/games', gameslistRoutes); // Register new routes, e.g., under /api/games
+honoApp.route('/api/games', gameslistRoutes);
+honoApp.route('/api/pragmaticplay/main', pragmaticPlayMainRoutes); // Register new routes
 
 // Basic root endpoint
 honoApp.get('/', (c) => { // Use honoApp
