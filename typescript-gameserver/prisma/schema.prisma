@@ -36,6 +36,8 @@ model GameslistGame {
   bonusbuy    Boolean? @default(false)
   jackpot     Boolean? @default(false)
 
+      demolink    String?  // <<< Add this new field for game demo links
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -86,4 +88,18 @@ model FreeSpins {
 
   // Example of a composite unique key if a player can only have one active free spin offer per game and operator
   // @@unique([player_id, game_id, operator_key, active], name: "active_freespin_offer")
+}
+
+model GameRespinTemplate {
+  id        Int      @id @default(autoincrement())
+  gid       String   // Game identifier, potentially a relation to GameslistGame.gid
+  game_type String   // Type of game template, e.g., 'freespin', 'respin'
+  game_data Json     // The actual template data
+  notes     String?  // Optional notes about the template
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Example: A game of a certain type should only have one template
+  // @@unique([gid, game_type])
 }

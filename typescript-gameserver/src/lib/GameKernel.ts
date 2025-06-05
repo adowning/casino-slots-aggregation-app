@@ -1,5 +1,6 @@
 import crypto from 'crypto'; // For random_uuid
 import { PrismaClient } from '@prisma/client'; // For stubs that will use Prisma
+import { AssetService } from '../services/AssetService'; // Import AssetService
 
 // It's good practice to instantiate PrismaClient once and share/inject it
 // For now, a global instance or instance per Kernel can be considered.
@@ -233,5 +234,88 @@ export class GameKernel {
     // return this.normalized_array(updated_freespin);
     console.warn('freespin_state_completed not fully implemented');
     return null; // Placeholder
+  }
+
+  // --- Methods from GameKernelTrait ---
+
+  public isJSON(str: string): boolean {
+    if (typeof str !== 'string') {
+      return false;
+    }
+    try {
+      const result = JSON.parse(str);
+      // Check if result is an object and not null (JSON.parse can return primitives for valid JSON like "true" or "123")
+      // The original PHP is_json typically expects an object or array.
+      return typeof result === 'object' && result !== null;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  public error_exception_message(exception: Error): string {
+    return exception.message;
+  }
+
+  // Depends on GameslistGame model via Prisma
+  public async get_game(gid: string): Promise<any | null> { // 'any' should be replaced with Prisma.GameslistGameGetPayload
+    console.log(`GameKernel.get_game called with gid: ${gid}`);
+    // Example: return this.prisma.gameslistGame.findFirst({
+    //   where: { gid, isActive: true },
+    //   include: { provider: true } // Example: include provider info
+    // });
+    console.warn('Prisma logic for get_game is stubbed.');
+    if (gid === 'testgame') { // Placeholder for stub
+      return { gid: 'testgame', name: 'Test Game', isActive: true, provider: { name: 'TestProvider'} };
+    }
+    return null;
+  }
+
+  // Uses GameRespinTemplate model via Prisma
+  public async save_game_respins_template(gid: string, game_data: any, game_type: string): Promise<any> { // 'any' for Prisma.GameRespinTemplateGetPayload
+    console.log(`GameKernel.save_game_respins_template called with gid: ${gid}, type: ${game_type}`);
+    // Example: return this.prisma.gameRespinTemplate.upsert({
+    //   where: { gid_game_type: {gid, game_type } }, // Assuming @@unique([gid, game_type]) called gid_game_type
+    //   update: { game_data: game_data as any }, // cast game_data to Prisma.JsonValue if needed
+    //   create: { gid, game_type, game_data: game_data as any }
+    // });
+    console.warn('Prisma logic for save_game_respins_template is stubbed.');
+    return { status: 'success_stubbed', gid, game_type, game_data };
+  }
+
+  // Uses GameRespinTemplate model via Prisma
+  public async retrieve_game_respins_template(gid: string, game_type: string): Promise<any | null> { // 'any' for Prisma.GameRespinTemplateGetPayload
+    console.log(`GameKernel.retrieve_game_respins_template called with gid: ${gid}, type: ${game_type}`);
+    // Example: return this.prisma.gameRespinTemplate.findUnique({
+    //   where: { gid_game_type: { gid, game_type } } // Assuming @@unique([gid, game_type]) called gid_game_type
+    // });
+    console.warn('Prisma logic for retrieve_game_respins_template is stubbed.');
+    if (gid === 'testgame' && game_type === 'respin') { // Placeholder for stub
+      return { gid, game_type, game_data: { info: 'test respin data' } };
+    }
+    return null;
+  }
+
+  // This method was originally in GameKernelTrait and used AssetController (or similar for file serving)
+  // It now uses AssetService.
+  public async pretendResponseIsFile(
+    pathString: string, // Renamed from 'path' to avoid conflict with 'path' module if imported
+    contentType: string,
+    requestHeaders?: Headers // From Hono's c.req.headers or standard Request
+  ): Promise<Response> {
+    console.log(`GameKernel.pretendResponseIsFile called for path: ${pathString}`);
+    try {
+      const assetService = new AssetService();
+      // Note on path resolution:
+      // The 'pathString' argument here needs to be a fully resolved path that fs.existsSync
+      // in AssetService can use. Callers like PragmaticPlayMainController's dynamic_asset
+      // will be responsible for constructing this path correctly (e.g., using path.resolve
+      // and __dirname, relative to a known base asset directory).
+      return await assetService.pretendResponseIsFile(pathString, contentType, requestHeaders);
+    } catch (error) {
+      console.error(`Error in GameKernel.pretendResponseIsFile for path ${pathString}:`, error);
+      // Return a generic error response. AssetService itself also has error handling,
+      // but this catches errors from instantiating AssetService or if it throws unexpectedly.
+      return new Response('Internal Server Error serving asset via GameKernel', { status: 500 });
+    }
   }
 }
